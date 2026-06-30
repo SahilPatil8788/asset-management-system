@@ -1,0 +1,5 @@
+# Database Configuration Properties Template
+# Rename this file to db.properties and fill in your password
+db.url=jdbc:mysql://localhost:3306/asset_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+db.username=root
+db.password=YOUR_PASSWORD_HERE

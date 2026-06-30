@@ -1,0 +1,15 @@
+# Compiled class files
+bin/
+*.class
+
+# Configuration files with secrets
+resources/db.properties
+
+# Log files
+*.log
+.system_generated/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
