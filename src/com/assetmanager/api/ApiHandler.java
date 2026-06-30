@@ -319,7 +319,7 @@ public class ApiHandler implements HttpHandler {
                     .map(entry -> String.format("\"%s\":%d", escapeJson(entry.getKey()), entry.getValue()))
                     .collect(Collectors.joining(","));
 
-            String json = String.format(
+            String json = String.format(java.util.Locale.US,
                 "{\"totalAssets\":%d,\"availableCount\":%d,\"borrowedCount\":%d,\"maintenanceCount\":%d," +
                 "\"totalValuation\":%.2f,\"averageValuation\":%.2f,\"categoryDistribution\":{%s}}",
                 report.get("totalAssets"), report.get("availableCount"), report.get("borrowedCount"), report.get("maintenanceCount"),
@@ -351,7 +351,7 @@ public class ApiHandler implements HttpHandler {
     }
 
     private String assetToJson(Asset a) {
-        return String.format(
+        return String.format(java.util.Locale.US,
             "{\"id\":%d,\"name\":\"%s\",\"category\":\"%s\",\"serialNumber\":\"%s\",\"price\":%.2f,\"purchaseDate\":\"%s\",\"status\":\"%s\"}",
             a.getId(), escapeJson(a.getName()), escapeJson(a.getCategory()), escapeJson(a.getSerialNumber()),
             a.getPrice(), a.getPurchaseDate().toString(), a.getStatus().name()
