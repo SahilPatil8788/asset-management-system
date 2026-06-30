@@ -1,0 +1,18 @@
+{
+  "name": "Asset Management System",
+  "short_name": "AMS",
+  "description": "Premium Asset Management System Web Portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090714",
+  "theme_color": "#8a2be2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

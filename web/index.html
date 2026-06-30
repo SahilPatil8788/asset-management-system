@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asset Management System</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#8a2be2">
     <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -848,6 +850,13 @@
         // Initialize view
         document.addEventListener('DOMContentLoaded', () => {
             selectRole('admin');
+            
+            // Register PWA Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker registered.'))
+                    .catch(err => console.error('PWA Service Worker registration failed.', err));
+            }
         });
 
         function selectRole(role) {
