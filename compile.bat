@@ -1,6 +1,6 @@
 @echo off
 echo =================================================
-echo   Compiling Asset Management System
+echo   Compiling Asset Management System Web Suite
 echo =================================================
 
 if not exist bin (
@@ -9,7 +9,7 @@ if not exist bin (
 )
 
 echo Compiling source files...
-javac -d bin -cp "lib/*;src" src/com/assetmanager/database/*.java src/com/assetmanager/exception/*.java src/com/assetmanager/model/*.java src/com/assetmanager/dao/*.java src/com/assetmanager/service/*.java src/com/assetmanager/util/*.java src/com/assetmanager/main/*.java
+javac -d bin -cp "lib/*;src" src/com/assetmanager/database/*.java src/com/assetmanager/exception/*.java src/com/assetmanager/model/*.java src/com/assetmanager/dao/*.java src/com/assetmanager/service/*.java src/com/assetmanager/util/*.java src/com/assetmanager/api/*.java src/com/assetmanager/main/*.java
 
 if %ERRORLEVEL% equ 0 (
     echo [SUCCESS] Compilation complete. Compiled classes saved in bin/

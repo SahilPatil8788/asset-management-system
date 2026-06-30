@@ -1,9 +1,9 @@
 @echo off
 echo =================================================
-echo   Running Asset Management System (AMS)
+echo   Running Asset Management System (Web Mode)
 echo =================================================
 
-java -cp "bin;lib/*" com.assetmanager.main.AssetManagerApp
+java -cp "bin;lib/*" com.assetmanager.main.WebAppLauncher
 
 if %ERRORLEVEL% neq 0 (
     echo.

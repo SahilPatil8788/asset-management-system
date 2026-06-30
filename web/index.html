@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management System</title>
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #090714 0%, #110e24 50%, #05040a 100%);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-card: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary: #8a2be2;
+            --primary-hover: #9d4edd;
+            --primary-glow: rgba(138, 43, 226, 0.3);
+            --accent: #4361ee;
+            --text-color: #f1ecf7;
+            --text-muted: #aaa2b5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Common Glassmorphic styles */
+        .glass-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--card-radius);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-card {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(138, 43, 226, 0.4);
+        }
+
+        /* Buttons styling */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-color);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Input styling */
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Custom notifications */
+        .notification-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--danger); }
+
+        /* Login Layout */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-hover) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .role-selector {
+            display: flex;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 24px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .role-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px var(--primary-glow);
+        }
+
+        /* App View Layout */
+        .app-container {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .navbar {
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(9, 7, 20, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-hover) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-tag {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--glass-border);
+            font-weight: 500;
+        }
+
+        /* Dashboard Body */
+        .dashboard-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            border-right: 1px solid var(--glass-border);
+            background: rgba(9, 7, 20, 0.4);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            padding: 14px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-color);
+        }
+
+        .nav-item.active {
+            background: rgba(138, 43, 226, 0.1);
+            color: var(--primary-hover);
+            border-left: 4px solid var(--primary);
+            font-weight: 600;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .content-view {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .content-view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* View Headers */
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .view-header h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .view-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Grid Lists */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-card .value.price {
+            color: var(--primary-hover);
+        }
+
+        /* Table design */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 16px 20px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--glass-border);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 0.95rem;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        /* Badges status */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .badge-available { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-borrowed { background: rgba(67, 97, 238, 0.15); color: var(--accent); }
+        .badge-maintenance { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        /* Report layout */
+        .report-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+
+        .chart-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+            max-height: 350px;
+            padding: 16px;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 500px;
+            padding: 32px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: white;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="loginView" class="login-container">
+        <div class="login-card glass-panel">
+            <div class="login-header">
+                <h1>Asset Management</h1>
+                <p>Welcome, please sign in to your dashboard</p>
+            </div>
+
+            <!-- Role tabs -->
+            <div class="role-selector">
+                <button id="adminRoleBtn" class="role-btn active" onclick="selectRole('admin')">Admin</button>
+                <button id="empRoleBtn" class="role-btn" onclick="selectRole('employee')">Employee</button>
+            </div>
+
+            <!-- Admin Form -->
+            <form id="loginForm" onsubmit="executeLogin(event)">
+                <div class="form-group" id="usernameGroup">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="Enter username" required>
+                </div>
+                <div class="form-group" id="emailGroup" style="display: none;">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter email address">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APPLICATION WORKSPACE -->
+    <div id="appWorkspace" class="app-container">
+        <!-- Navigation bar -->
+        <div class="navbar">
+            <div class="logo-text">AMS Dashboard</div>
+            <div class="user-info">
+                <span id="navUserTag" class="user-tag">Role: Admin</span>
+                <button class="btn btn-secondary" onclick="executeLogout()">Sign Out</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Workspace -->
+        <div class="dashboard-body">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar" id="sidebarMenu">
+                <!-- Navigation items dynamically rendered based on user role -->
+            </div>
+
+            <!-- Main Content Container -->
+            <div class="content-area">
+
+                <!-- VIEW: ADMIN - INVENTORY OVERVIEW -->
+                <div id="view-admin-inventory" class="content-view">
+                    <div class="view-header">
+                        <h2>Assets Inventory</h2>
+                        <div class="view-actions">
+                            <input type="text" id="assetSearchInput" class="form-control" placeholder="Search assets..." style="width: 250px;" oninput="loadAssets()">
+                            <select id="assetSortSelect" class="form-control" style="width: 150px;" onchange="loadAssets()">
+                                <option value="">Sort By</option>
+                                <option value="name">Name</option>
+                                <option value="price">Price</option>
+                                <option value="date">Purchase Date</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="openAssetModal(false)">+ Add Asset</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container glass-panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Asset Name</th>
+                                    <th>Category</th>
+                                    <th>Serial Number</th>
+                                    <th>Price</th>
+                                    <th>Purchase Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetsTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW: ADMIN - EMPLOYEES ROSTER -->
+                <div id="view-admin-employees" class="content-view">
+                    <div class="view-header">
+                        <h2>Employee Directory</h2>
+                        <div class="view-actions">
+                            <button class="btn btn-primary" onclick="openEmployeeModal()">+ Register Employee</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container glass-panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Full Name</th>
+                                    <th>Email Address</th>
+                                    <th>Department</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW: ADMIN - MASTER TRANSACTIONS LOG -->
+                <div id="view-admin-transactions" class="content-view">
+                    <div class="view-header">
+                        <h2>System Transaction Logs</h2>
+                    </div>
+
+                    <div class="table-container glass-panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Log ID</th>
+                                    <th>Asset ID</th>
+                                    <th>Employee ID</th>
+                                    <th>Borrow Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW: ADMIN - REPORTS DASHBOARD -->
+                <div id="view-admin-reports" class="content-view">
+                    <div class="view-header">
+                        <h2>Analytics Reports</h2>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card glass-panel">
+                            <span class="label">Total Valuation</span>
+                            <span class="value price" id="reportValuation">$0.00</span>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <span class="label">Total Count</span>
+                            <span class="value" id="reportTotal">0</span>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <span class="label">Available Assets</span>
+                            <span class="value" id="reportAvailable" style="color: var(--success);">0</span>
+                        </div>
+                        <div class="stat-card glass-panel">
+                            <span class="label">Borrowed Assets</span>
+                            <span class="value" id="reportBorrowed" style="color: var(--accent);">0</span>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <div class="glass-panel" style="padding: 24px;">
+                            <h3 style="margin-bottom: 20px;">Category Distribution</h3>
+                            <div class="chart-box">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-panel" style="padding: 24px;">
+                            <h3 style="margin-bottom: 20px;">Status Summary</h3>
+                            <div class="chart-box">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW: EMPLOYEE - BORROW ASSETS -->
+                <div id="view-emp-borrow" class="content-view">
+                    <div class="view-header">
+                        <h2>Borrow Assets</h2>
+                    </div>
+
+                    <div class="table-container glass-panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Asset Name</th>
+                                    <th>Category</th>
+                                    <th>Serial Number</th>
+                                    <th>Price</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="empBorrowTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- VIEW: EMPLOYEE - PERSONAL LOGS -->
+                <div id="view-emp-history" class="content-view">
+                    <div class="view-header">
+                        <h2>My Borrowed Assets & History</h2>
+                    </div>
+
+                    <div class="table-container glass-panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Log ID</th>
+                                    <th>Asset ID</th>
+                                    <th>Asset Name</th>
+                                    <th>Borrow Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="empHistoryTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MODAL: ASSET ADD/EDIT -->
+    <div id="assetModal" class="modal-overlay">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h3 id="assetModalTitle">Add Asset</h3>
+                <button class="modal-close" onclick="closeAssetModal()">&times;</button>
+            </div>
+            <form id="assetForm" onsubmit="submitAssetForm(event)">
+                <input type="hidden" id="assetId">
+                <div class="form-group">
+                    <label for="assetName">Asset Name</label>
+                    <input type="text" id="assetName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="assetCategory">Category</label>
+                    <input type="text" id="assetCategory" class="form-control" placeholder="e.g. Laptop, Phone, Monitor" required>
+                </div>
+                <div class="form-group">
+                    <label for="assetSerial">Serial Number</label>
+                    <input type="text" id="assetSerial" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="assetPrice">Price ($)</label>
+                    <input type="number" id="assetPrice" class="form-control" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="assetDate">Purchase Date</label>
+                    <input type="date" id="assetDate" class="form-control" required>
+                </div>
+                <div class="form-group" id="assetStatusGroup" style="display: none;">
+                    <label for="assetStatus">Status</label>
+                    <select id="assetStatus" class="form-control">
+                        <option value="AVAILABLE">AVAILABLE</option>
+                        <option value="BORROWED">BORROWED</option>
+                        <option value="MAINTENANCE">MAINTENANCE</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAssetModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. MODAL: EMPLOYEE REGISTRATION -->
+    <div id="employeeModal" class="modal-overlay">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h3>Register Employee</h3>
+                <button class="modal-close" onclick="closeEmployeeModal()">&times;</button>
+            </div>
+            <form id="employeeForm" onsubmit="submitEmployeeForm(event)">
+                <div class="form-group">
+                    <label for="empName">Full Name</label>
+                    <input type="text" id="empName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="empEmail">Email Address</label>
+                    <input type="email" id="empEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="empDept">Department</label>
+                    <input type="text" id="empDept" class="form-control" placeholder="e.g. IT, HR, Finance" required>
+                </div>
+                <div class="form-group">
+                    <label for="empPassword">Password</label>
+                    <input type="password" id="empPassword" class="form-control" placeholder="At least 4 characters" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'admin';
+        let currentUser = null;
+        let categoryChartInstance = null;
+        let statusChartInstance = null;
+        let allAssetsCached = []; // Useful for displaying asset names in employee history mapping
+
+        // Initialize view
+        document.addEventListener('DOMContentLoaded', () => {
+            selectRole('admin');
+        });
+
+        function selectRole(role) {
+            currentRole = role;
+            const adminBtn = document.getElementById('adminRoleBtn');
+            const empBtn = document.getElementById('empRoleBtn');
+            const usernameGroup = document.getElementById('usernameGroup');
+            const emailGroup = document.getElementById('emailGroup');
+
+            const loginUsername = document.getElementById('loginUsername');
+            const loginEmail = document.getElementById('loginEmail');
+
+            if (role === 'admin') {
+                adminBtn.classList.add('active');
+                empBtn.classList.remove('active');
+                usernameGroup.style.display = 'flex';
+                emailGroup.style.display = 'none';
+                loginUsername.required = true;
+                loginEmail.required = false;
+            } else {
+                adminBtn.classList.remove('active');
+                empBtn.classList.add('active');
+                usernameGroup.style.display = 'none';
+                emailGroup.style.display = 'flex';
+                loginUsername.required = false;
+                loginEmail.required = true;
+            }
+        }
+
+        // ==========================================
+        // NOTIFICATIONS
+        // ==========================================
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `notification-toast toast-${type}`;
+            toast.innerText = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==========================================
+        // AUTHENTICATION OPERATIONS
+        // ==========================================
+        function executeLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('loginPassword').value;
+
+            let payload = { role: currentRole, password: password };
+            if (currentRole === 'admin') {
+                payload.username = document.getElementById('loginUsername').value;
+            } else {
+                payload.email = document.getElementById('loginEmail').value;
+            }
+
+            fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    currentUser = data.user;
+                    currentUser.role = data.role;
+                    showNotification('success', `Welcome back, ${currentRole === 'admin' ? currentUser.username : currentUser.name}!`);
+                    setupWorkspace();
+                } else {
+                    showNotification('error', data.error || 'Authentication failed.');
+                }
+            })
+            .catch(err => {
+                showNotification('error', 'Error connecting to the server API.');
+            });
+        }
+
+        function executeLogout() {
+            currentUser = null;
+            document.getElementById('appWorkspace').style.display = 'none';
+            document.getElementById('loginView').style.display = 'flex';
+            // Clear input fields
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginEmail').value = '';
+        }
+
+        // ==========================================
+        // WORKSPACE RENDERING
+        // ==========================================
+        function setupWorkspace() {
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('appWorkspace').style.display = 'flex';
+
+            const userTag = document.getElementById('navUserTag');
+            userTag.innerText = currentRole === 'admin' 
+                ? `Admin: ${currentUser.username}` 
+                : `Employee: ${currentUser.name} (${currentUser.department})`;
+
+            // Load sidebar options
+            const sidebar = document.getElementById('sidebarMenu');
+            sidebar.innerHTML = '';
+
+            if (currentRole === 'admin') {
+                sidebar.innerHTML = `
+                    <div class="nav-item active" onclick="switchView('admin-inventory')" id="nav-admin-inventory">Asset Inventory</div>
+                    <div class="nav-item" onclick="switchView('admin-employees')" id="nav-admin-employees">Employee Roster</div>
+                    <div class="nav-item" onclick="switchView('admin-transactions')" id="nav-admin-transactions">Transaction Logs</div>
+                    <div class="nav-item" onclick="switchView('admin-reports')" id="nav-admin-reports">Analytics Report</div>
+                `;
+                switchView('admin-inventory');
+            } else {
+                sidebar.innerHTML = `
+                    <div class="nav-item active" onclick="switchView('emp-borrow')" id="nav-emp-borrow">Browse Available Assets</div>
+                    <div class="nav-item" onclick="switchView('emp-history')" id="nav-emp-history">My Transactions</div>
+                `;
+                // Load all assets list to cache for employee return layouts
+                fetch('/api/assets')
+                    .then(res => res.json())
+                    .then(data => { allAssetsCached = data; })
+                    .catch(() => {});
+                switchView('emp-borrow');
+            }
+        }
+
+        function switchView(viewName) {
+            // Remove active classes
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.content-view').forEach(el => el.classList.remove('active'));
+
+            // Set active navigation item & view
+            const navEl = document.getElementById(`nav-${viewName}`);
+            if (navEl) navEl.classList.add('active');
+
+            const viewEl = document.getElementById(`view-${viewName}`);
+            if (viewEl) viewEl.classList.add('active');
+
+            // Trigger load data based on view
+            if (viewName === 'admin-inventory') loadAssets();
+            if (viewName === 'admin-employees') loadEmployees();
+            if (viewName === 'admin-transactions') loadTransactions();
+            if (viewName === 'admin-reports') loadReportDashboard();
+            if (viewName === 'emp-borrow') loadEmployeeBorrowView();
+            if (viewName === 'emp-history') loadEmployeeHistoryView();
+        }
+
+        // ==========================================
+        // ADMIN: ASSET CRUD ACTIONS
+        // ==========================================
+        function loadAssets() {
+            const query = document.getElementById('assetSearchInput').value;
+            const sort = document.getElementById('assetSortSelect').value;
+
+            let url = '/api/assets';
+            if (query) url += `?search=${encodeURIComponent(query)}`;
+            else if (sort) url += `?sort=${sort}`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(assets => {
+                    const tbody = document.getElementById('assetsTableBody');
+                    tbody.innerHTML = '';
+
+                    assets.forEach(asset => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${asset.id}</td>
+                            <td style="font-weight: 600;">${asset.name}</td>
+                            <td>${asset.category}</td>
+                            <td><code>${asset.serialNumber}</code></td>
+                            <td>$${asset.price.toFixed(2)}</td>
+                            <td>${asset.purchaseDate}</td>
+                            <td><span class="badge badge-${asset.status.toLowerCase()}">${asset.status}</span></td>
+                            <td style="display:flex; gap: 8px;">
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openAssetModal(true, ${JSON.stringify(asset).replace(/"/g, '&quot;')})">Edit</button>
+                                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="deleteAsset(${asset.id})">Delete</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => showNotification('error', 'Failed to retrieve asset list.'));
+        }
+
+        function deleteAsset(id) {
+            if (!confirm('Are you sure you want to delete this asset?')) return;
+
+            fetch(`/api/assets?id=${id}`, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification('success', data.message);
+                        loadAssets();
+                    } else {
+                        showNotification('error', data.error);
+                    }
+                })
+                .catch(() => showNotification('error', 'Server error.'));
+        }
+
+        // Asset modal management
+        function openAssetModal(isEdit, assetData = null) {
+            const modal = document.getElementById('assetModal');
+            const title = document.getElementById('assetModalTitle');
+            const statusGroup = document.getElementById('assetStatusGroup');
+            
+            // Reset form
+            document.getElementById('assetForm').reset();
+            document.getElementById('assetId').value = '';
+
+            if (isEdit && assetData) {
+                title.innerText = 'Edit Asset';
+                statusGroup.style.display = 'block';
+                
+                document.getElementById('assetId').value = assetData.id;
+                document.getElementById('assetName').value = assetData.name;
+                document.getElementById('assetCategory').value = assetData.category;
+                document.getElementById('assetSerial').value = assetData.serialNumber;
+                document.getElementById('assetPrice').value = assetData.price;
+                document.getElementById('assetDate').value = assetData.purchaseDate;
+                document.getElementById('assetStatus').value = assetData.status;
+            } else {
+                title.innerText = 'Add Asset';
+                statusGroup.style.display = 'none';
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeAssetModal() {
+            document.getElementById('assetModal').style.display = 'none';
+        }
+
+        function submitAssetForm(event) {
+            event.preventDefault();
+            const id = document.getElementById('assetId').value;
+            const name = document.getElementById('assetName').value;
+            const category = document.getElementById('assetCategory').value;
+            const serialNumber = document.getElementById('assetSerial').value;
+            const price = document.getElementById('assetPrice').value;
+            const purchaseDate = document.getElementById('assetDate').value;
+            
+            const isEdit = id !== '';
+            let url = '/api/assets';
+            let method = isEdit ? 'PUT' : 'POST';
+
+            let payload = {
+                name: name,
+                category: category,
+                serialNumber: serialNumber,
+                price: price,
+                purchaseDate: purchaseDate
+            };
+
+            if (isEdit) {
+                payload.id = id;
+                payload.status = document.getElementById('assetStatus').value;
+            }
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('success', data.message);
+                    closeAssetModal();
+                    loadAssets();
+                } else {
+                    showNotification('error', data.error);
+                }
+            })
+            .catch(() => showNotification('error', 'Failed to communicate with API.'));
+        }
+
+        // ==========================================
+        // ADMIN: EMPLOYEE ROSTER
+        // ==========================================
+        function loadEmployees() {
+            fetch('/api/employees')
+                .then(res => res.json())
+                .then(list => {
+                    const tbody = document.getElementById('employeesTableBody');
+                    tbody.innerHTML = '';
+
+                    list.forEach(emp => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${emp.id}</td>
+                            <td style="font-weight:600;">${emp.name}</td>
+                            <td><code>${emp.email}</code></td>
+                            <td>${emp.department}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(() => showNotification('error', 'Error fetching employee roster.'));
+        }
+
+        function openEmployeeModal() {
+            document.getElementById('employeeForm').reset();
+            document.getElementById('employeeModal').style.display = 'flex';
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModal').style.display = 'none';
+        }
+
+        function submitEmployeeForm(event) {
+            event.preventDefault();
+            const name = document.getElementById('empName').value;
+            const email = document.getElementById('empEmail').value;
+            const department = document.getElementById('empDept').value;
+            const password = document.getElementById('empPassword').value;
+
+            fetch('/api/employees', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, department, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('success', data.message);
+                    closeEmployeeModal();
+                    loadEmployees();
+                } else {
+                    showNotification('error', data.error);
+                }
+            })
+            .catch(() => showNotification('error', 'Failed to save employee.'));
+        }
+
+        // ==========================================
+        // ADMIN: MASTER TRANSACTION LOGS
+        // ==========================================
+        function loadTransactions() {
+            fetch('/api/transactions')
+                .then(res => res.json())
+                .then(list => {
+                    const tbody = document.getElementById('transactionsTableBody');
+                    tbody.innerHTML = '';
+
+                    list.forEach(t => {
+                        const returnDateStr = t.returnDate ? t.returnDate : '<span style="color:var(--text-muted); font-style:italic;">Not returned</span>';
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${t.id}</td>
+                            <td>${t.assetId}</td>
+                            <td>${t.employeeId}</td>
+                            <td>${t.borrowDate}</td>
+                            <td>${returnDateStr}</td>
+                            <td><span class="badge badge-${t.status.toLowerCase()}">${t.status}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(() => showNotification('error', 'Error fetching transaction history.'));
+        }
+
+        // ==========================================
+        // ADMIN: ANALYTICS REPORTS
+        // ==========================================
+        function loadReportDashboard() {
+            fetch('/api/reports')
+                .then(res => res.json())
+                .then(report => {
+                    document.getElementById('reportValuation').innerText = `$${report.totalValuation.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    document.getElementById('reportTotal').innerText = report.totalAssets;
+                    document.getElementById('reportAvailable').innerText = report.availableCount;
+                    document.getElementById('reportBorrowed').innerText = report.borrowedCount;
+                    document.getElementById('reportMaintenance').innerText = report.maintenanceCount;
+
+                    // Render Chart.js graphs
+                    renderCharts(report);
+                })
+                .catch(() => showNotification('error', 'Error compiling analytics report.'));
+        }
+
+        function renderCharts(report) {
+            // Destroy existing instances if active
+            if (categoryChartInstance) categoryChartInstance.destroy();
+            if (statusChartInstance) statusChartInstance.destroy();
+
+            // Status Distribution (Pie Chart)
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            statusChartInstance = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Available', 'Borrowed', 'Maintenance'],
+                    datasets: [{
+                        data: [report.availableCount, report.borrowedCount, report.maintenanceCount],
+                        backgroundColor: ['#10b981', '#4361ee', '#f59e0b'],
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f1ecf7' } }
+                    }
+                }
+            });
+
+            // Category Distribution (Bar Chart)
+            const categories = Object.keys(report.categoryDistribution);
+            const categoryCounts = Object.values(report.categoryDistribution);
+
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            categoryChartInstance = new Chart(catCtx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Assets Count',
+                        data: categoryCounts,
+                        backgroundColor: 'rgba(138, 43, 226, 0.6)',
+                        borderColor: '#8a2be2',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: '#aaa2b5' }, grid: { display: false } },
+                        y: { ticks: { color: '#aaa2b5', stepSize: 1 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // ==========================================
+        // EMPLOYEE: PORTAL VIEW
+        // ==========================================
+        function loadEmployeeBorrowView() {
+            fetch('/api/assets')
+                .then(res => res.json())
+                .then(assets => {
+                    const tbody = document.getElementById('empBorrowTableBody');
+                    tbody.innerHTML = '';
+
+                    const availableOnly = assets.filter(a => a.status === 'AVAILABLE');
+                    
+                    if (availableOnly.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No assets are currently available for borrowing.</td></tr>`;
+                        return;
+                    }
+
+                    availableOnly.forEach(asset => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${asset.id}</td>
+                            <td style="font-weight:600;">${asset.name}</td>
+                            <td>${asset.category}</td>
+                            <td><code>${asset.serialNumber}</code></td>
+                            <td>$${asset.price.toFixed(2)}</td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;" onclick="borrowAsset(${asset.id})">Borrow</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(() => showNotification('error', 'Error fetching available assets.'));
+        }
+
+        function borrowAsset(assetId) {
+            fetch('/api/transactions/borrow', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ assetId: assetId, employeeId: currentUser.id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('success', 'Asset borrowed successfully!');
+                    loadEmployeeBorrowView();
+                } else {
+                    showNotification('error', data.error);
+                }
+            })
+            .catch(() => showNotification('error', 'Communication failure.'));
+        }
+
+        function loadEmployeeHistoryView() {
+            fetch(`/api/transactions?employeeId=${currentUser.id}`)
+                .then(res => res.json())
+                .then(transactions => {
+                    const tbody = document.getElementById('empHistoryTableBody');
+                    tbody.innerHTML = '';
+
+                    if (transactions.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">You have not borrowed any assets yet.</td></tr>`;
+                        return;
+                    }
+
+                    transactions.forEach(t => {
+                        // Find asset name from local cache or default
+                        const assetObj = allAssetsCached.find(a => a.id === t.assetId);
+                        const assetName = assetObj ? assetObj.name : `Asset ID: ${t.assetId}`;
+
+                        const returnDateStr = t.returnDate ? t.returnDate : 'Active Borrow';
+                        
+                        let actionButton = '';
+                        if (t.status === 'BORROWED') {
+                            actionButton = `<button class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="returnAsset(${t.assetId})">Return Item</button>`;
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${t.id}</td>
+                            <td>${t.assetId}</td>
+                            <td style="font-weight:600;">${assetName}</td>
+                            <td>${t.borrowDate}</td>
+                            <td>${returnDateStr}</td>
+                            <td><span class="badge badge-${t.status.toLowerCase()}">${t.status}</span></td>
+                            <td>${actionButton}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(() => showNotification('error', 'Error loading transaction history.'));
+        }
+
+        function returnAsset(assetId) {
+            if (!confirm('Are you sure you want to return this asset?')) return;
+
+            fetch('/api/transactions/return', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ assetId: assetId, employeeId: currentUser.id })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('success', 'Asset returned successfully!');
+                    loadEmployeeHistoryView();
+                } else {
+                    showNotification('error', data.error);
+                }
+            })
+            .catch(() => showNotification('error', 'Server error.'));
+        }
+    </script>
+</body>
+</html>
