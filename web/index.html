@@ -1222,10 +1222,21 @@
                     document.getElementById('reportBorrowed').innerText = report.borrowedCount;
                     document.getElementById('reportMaintenance').innerText = report.maintenanceCount;
 
-                    // Render Chart.js graphs
-                    renderCharts(report);
+                    // Render Chart.js graphs if loaded
+                    if (window.Chart) {
+                        try {
+                            renderCharts(report);
+                        } catch (chartErr) {
+                            console.error("Chart rendering error:", chartErr);
+                        }
+                    } else {
+                        console.warn("Chart.js library not loaded from CDN.");
+                    }
                 })
-                .catch(() => showNotification('error', 'Error compiling analytics report.'));
+                .catch(err => {
+                    console.error("API error:", err);
+                    showNotification('error', 'Error compiling analytics report.');
+                });
         }
 
         function renderCharts(report) {
